@@ -66,14 +66,12 @@ class RitepadApp {
         this.themeToggle = document.getElementById('theme-toggle');
         this.themeSelect = document.getElementById('theme-select');
         this.welcomeScreen = document.getElementById('welcome-screen');
-        this.welcomeNewNoteBtn = document.getElementById('welcome-new-note');
     }
     
     bindEvents() {
         // Sidebar events
         this.newNoteBtn.addEventListener('click', () => this.createNewNote());
         this.newFolderBtn.addEventListener('click', () => this.createNewFolder());
-        this.welcomeNewNoteBtn.addEventListener('click', () => this.createNewNote());
         this.searchInput.addEventListener('input', (e) => this.searchNotes(e.target.value));
         
         // Editor events
@@ -143,6 +141,7 @@ class RitepadApp {
         };
         
         this.notes.unshift(note);
+        this.currentNoteId = note.id; // Set the current note ID immediately
         this.saveNotes();
         this.loadFolders();
         this.selectNote(note.id);
@@ -290,9 +289,9 @@ class RitepadApp {
         this.currentNoteId = null;
         this.currentFolderId = null;
         this.noteTitleInput.value = '';
-        this.noteTitleInput.placeholder = 'Note title...';
+        this.noteTitleInput.placeholder = 'Add a note or create a folder';
         this.editor.innerHTML = '';
-        this.editor.setAttribute('placeholder', 'Click here to add a note...');
+        this.editor.setAttribute('placeholder', 'Click here to start writing...');
         this.updateWordCount();
         this.lastSaved.textContent = 'Ready to create';
         
@@ -379,19 +378,7 @@ class RitepadApp {
     }
     
     showBlankScreen() {
-        this.welcomeScreen.classList.remove('hidden');
-        const welcomeContent = this.welcomeScreen.querySelector('.welcome-content');
-        welcomeContent.innerHTML = `
-            <i class="fas fa-edit welcome-icon"></i>
-            <h2>Welcome to Ritepad</h2>
-            <p>Create your first note to get started</p>
-            <button id="welcome-new-note" class="btn btn-primary btn-large">
-                <i class="fas fa-plus"></i> Create First Note
-            </button>
-        `;
-        
-        // Re-bind the welcome button
-        document.getElementById('welcome-new-note').addEventListener('click', () => this.createNewNote());
+        this.showWelcomeScreen();
     }
     
     selectNote(noteId) {
@@ -707,6 +694,11 @@ class RitepadApp {
         localStorage.setItem('ritepad-theme', theme);
         this.themeSelect.value = theme;
         this.updateThemeIcon(theme);
+        
+        // Update welcome screen if it's visible
+        if (!this.welcomeScreen.classList.contains('hidden')) {
+            this.updateWelcomeScreen();
+        }
     }
     
     toggleTheme() {
@@ -722,8 +714,39 @@ class RitepadApp {
     
     showWelcomeScreen() {
         this.welcomeScreen.classList.remove('hidden');
+        this.updateWelcomeScreen();
     }
     
+    updateWelcomeScreen() {
+        const welcomeContent = this.welcomeScreen.querySelector('.welcome-content');
+        welcomeContent.innerHTML = `
+            <i class="fas fa-edit welcome-icon"></i>
+            <h2>Welcome to Ritepad</h2>
+            <p>Add a note or create a folder to get started</p>
+            <div class="welcome-actions">
+                <button id="welcome-new-note" class="btn btn-primary btn-large">
+                    <i class="fas fa-plus"></i> Create Note
+                </button>
+                <button id="welcome-new-folder" class="btn btn-secondary btn-large">
+                    <i class="fas fa-folder-plus"></i> Create Folder
+                </button>
+            </div>
+        `;
+        
+        // Re-bind the welcome buttons
+        document.getElementById('welcome-new-note').addEventListener('click', () => {
+            this.hideWelcomeScreen();
+            this.createNewNote();
+        });
+        
+        document.getElementById('welcome-new-folder').addEventListener('click', () => {
+            this.hideWelcomeScreen();
+            this.createNewFolder();
+            // After creating folder, show the add note screen
+            setTimeout(() => this.showAddNoteScreen(), 100);
+        });
+    }
+
     hideWelcomeScreen() {
         this.welcomeScreen.classList.add('hidden');
     }
