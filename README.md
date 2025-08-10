@@ -5,4 +5,4 @@ Features :
 - Import/Export txt files
 - Stores data on the browser's localStorage
 
-)created using WIndsurf and Cursor AI)
+(created using WIndsurf and Cursor AI)
