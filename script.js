@@ -29,6 +29,10 @@ class RitepadApp {
     
     getDefaultFolders() {
         return [
+            { id: 'general', name: 'General', color: '#6366f1', parentId: null, createdAt: new Date().toISOString() },
+            { id: 'journal', name: 'Journal', color: '#059669', parentId: null, createdAt: new Date().toISOString() },
+            { id: 'compendium', name: 'Compendium', color: '#7c3aed', parentId: null, createdAt: new Date().toISOString() }
+        ];
     }
     
     initializeElements() {
